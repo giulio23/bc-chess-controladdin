@@ -1,0 +1,24 @@
+# AL/Business Central
+.alpackages/
+.vscode/
+*.app
+*.alcache
+*.vsix
+*.code-workspace
+*.user
+*.suo
+*.db
+*.pdb
+*.log
+*.nupkg
+*.snk
+*.vs/
+*.env
+*.DS_Store
+Thumbs.db
+node_modules/
+.env
+# Ignore test output
+TestResults/
+# Ignore temporary files
+~$*

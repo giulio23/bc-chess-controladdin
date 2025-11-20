@@ -1,0 +1,21 @@
+controladdin "ChessBoardControlV2"
+{
+    Scripts = 'resources/chessboard.js';
+    StyleSheets = 'resources/chessboard.css';
+    StartupScript = 'resources/startup.js';
+    RequestedHeight = 400;
+    RequestedWidth = 400;
+    VerticalStretch = true;
+    HorizontalStretch = true;
+    MinimumHeight = 300;
+    MinimumWidth = 300;
+    MaximumHeight = 800;
+    MaximumWidth = 800;
+
+    event OnPieceMoved(FromRow: Integer; FromCol: Integer; ToRow: Integer; ToCol: Integer);
+    event OnBoardReset();
+
+    procedure MovePiece(FromRow: Integer; FromCol: Integer; ToRow: Integer; ToCol: Integer);
+    procedure ResetBoard();
+    procedure SetBoardState(State: Text);
+}

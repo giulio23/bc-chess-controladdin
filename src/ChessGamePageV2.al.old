@@ -1,0 +1,166 @@
+page 50201 "Chess Game V2"
+{
+    PageType = Card;
+    ApplicationArea = All;
+    UsageCategory = Tasks;
+    Caption = 'Chess Game V2';
+
+    layout
+    {
+        area(content)
+        {
+            group(GameInfo)
+            {
+                Caption = 'Game Information';
+                field(AIEnabled; AIEnabled)
+                {
+                    Caption = 'AI Opponent Enabled';
+                    ApplicationArea = All;
+                    trigger OnValidate()
+                    begin
+                        CurrPage.ChessBoard.EnableAI(AIEnabled, 'b');
+                    end;
+                }
+                field(MoveCount; MoveCount)
+                {
+                    Caption = 'Moves Played';
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+                field(CapturedWhite; CapturedWhitePieces)
+                {
+                    Caption = 'White Pieces Captured';
+                    ApplicationArea = All;
+                    Editable = false;
+                    MultiLine = true;
+                }
+                field(CapturedBlack; CapturedBlackPieces)
+                {
+                    Caption = 'Black Pieces Captured';
+                    ApplicationArea = All;
+                    Editable = false;
+                    MultiLine = true;
+                }
+            }
+
+            usercontrol(ChessBoard; "ChessBoardControlV2")
+            {
+                ApplicationArea = All;
+
+                trigger OnPieceMoved(FromRow: Integer; FromCol: Integer; ToRow: Integer; ToCol: Integer; CapturedPiece: Text)
+                var
+                    FromSquare: Text;
+                    ToSquare: Text;
+                    MoveNotation: Text;
+                begin
+                    MoveCount += 1;
+                    
+                    // Track captured pieces
+                    if CapturedPiece <> '' then begin
+                        if CopyStr(CapturedPiece, 1, 1) = 'w' then
+                            CapturedWhitePieces += GetPieceSymbol(CapturedPiece) + ' '
+                        else
+                            CapturedBlackPieces += GetPieceSymbol(CapturedPiece) + ' ';
+                    end;
+
+                    // Create algebraic notation (simplified)
+                    FromSquare := GetSquareNotation(FromRow, FromCol);
+                    ToSquare := GetSquareNotation(ToRow, ToCol);
+                    MoveNotation := StrSubstNo('Move %1: %2-%3', MoveCount, FromSquare, ToSquare);
+                    
+                    if CapturedPiece <> '' then
+                        MoveNotation += StrSubstNo(' (captured %1)', GetPieceSymbol(CapturedPiece));
+                    
+                    Message(MoveNotation);
+                end;
+
+                trigger OnBoardReset()
+                begin
+                    MoveCount := 0;
+                    CapturedWhitePieces := '';
+                    CapturedBlackPieces := '';
+                    Message('Board has been reset to starting position.');
+                end;
+            }
+        }
+    }
+
+    actions
+    {
+        area(processing)
+        {
+            action(ResetBoard)
+            {
+                Caption = 'Reset Board';
+                Image = Refresh;
+                ToolTip = 'Reset the chess board to the starting position';
+                
+                trigger OnAction()
+                begin
+                    CurrPage.ChessBoard.ResetBoard();
+                end;
+            }
+            action(EnableAI)
+            {
+                Caption = 'Enable AI';
+                Image = Start;
+                ToolTip = 'Enable AI opponent (plays as Black)';
+                
+                trigger OnAction()
+                begin
+                    AIEnabled := true;
+                    CurrPage.ChessBoard.EnableAI(true, 'b');
+                    Message('AI opponent enabled. AI will play as Black.');
+                end;
+            }
+            action(DisableAI)
+            {
+                Caption = 'Disable AI';
+                Image = Stop;
+                ToolTip = 'Disable AI opponent for 2-player mode';
+                
+                trigger OnAction()
+                begin
+                    AIEnabled := false;
+                    CurrPage.ChessBoard.EnableAI(false, 'b');
+                    Message('AI opponent disabled. Two-player mode active.');
+                end;
+            }
+        }
+    }
+
+    var
+        MoveCount: Integer;
+        CapturedWhitePieces: Text;
+        CapturedBlackPieces: Text;
+        AIEnabled: Boolean;
+
+    local procedure GetSquareNotation(Row: Integer; Col: Integer): Text
+    var
+        Files: Text[8];
+        Ranks: Text[8];
+    begin
+        Files := 'abcdefgh';
+        Ranks := '87654321';
+        exit(CopyStr(Files, Col, 1) + CopyStr(Ranks, Row, 1));
+    end;
+
+    local procedure GetPieceSymbol(Piece: Text): Text
+    begin
+        case CopyStr(Piece, 2, 1) of
+            'P':
+                exit('♙/♟');
+            'N':
+                exit('♘/♞');
+            'B':
+                exit('♗/♝');
+            'R':
+                exit('♖/♜');
+            'Q':
+                exit('♕/♛');
+            'K':
+                exit('♔/♚');
+        end;
+        exit(Piece);
+    end;
+}

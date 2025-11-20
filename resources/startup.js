@@ -6,3 +6,6 @@ window.drop = function (ev) {
     var data = ev.dataTransfer.getData("Text");
     ev.target.appendChild(document.getElementById(data));
 }
+
+// Log successful initialization
+console.log('Chess Control Add-in initialized successfully');
